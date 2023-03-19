@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Ordering.Api.Extensions;
+using Ordering.Infrastructure.Persistance;
 
 namespace Ordering.Api
 {
@@ -13,7 +15,12 @@ namespace Ordering.Api
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args)
+                .Build()
+                .MigrateDataBase<OrderContext>((context, services) =>
+                {
+                     OrderContextSeed.SeedAsync(context).Wait();
+                }).Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

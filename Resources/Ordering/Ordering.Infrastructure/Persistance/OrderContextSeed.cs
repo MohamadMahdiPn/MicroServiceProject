@@ -31,7 +31,7 @@ namespace Ordering.Infrastructure.Persistance
                     Country = "Iran",
                     TotalPrice = 1000000
                 },
-                new Order
+                new ()
                 {
                     FirstName = "mohammad",
                     LastName = "ordookhani",

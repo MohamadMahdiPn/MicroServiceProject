@@ -49,16 +49,29 @@ namespace Ordering.Api.Controllers
         #endregion
 
 
-        #region Update order
-        [HttpPost(Name = "UpdateOrder")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        //#region Update order
+        //[HttpPost(Name = "UpdateOrder")]
+        //[ProducesResponseType((int)HttpStatusCode.NoContent)]
+        //[ProducesResponseType((int)HttpStatusCode.NotFound)]
+        //[ProducesDefaultResponseType]
+        //public async Task<ActionResult<int>> UpdateOrder([FromBody] UpdateOrderCommand command)
+        //{
+        //    var result = await _mediator.Send(command);
+        //    return NoContent();
+        //}
+        //#endregion
+        #region update order
+
+        [HttpPut(Name = "UpdateOrder")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<int>> UpdateOrder([FromBody] UpdateOrderCommand command)
+        public async Task<ActionResult> UpdateOrder([FromBody] UpdateOrderCommand command)
         {
-            var result = await _mediator.Send(command);
+            await _mediator.Send(command);
             return NoContent();
         }
+
         #endregion
 
         #region Delete order
