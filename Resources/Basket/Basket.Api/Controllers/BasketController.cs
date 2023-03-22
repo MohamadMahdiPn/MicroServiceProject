@@ -1,8 +1,12 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Basket.Api.Entities;
 using Basket.Api.GrpcServices;
 using Basket.Api.Repositories;
+using EventBus.Messages.Events;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,10 +20,14 @@ namespace Basket.Api.Controllers
 
         private readonly IBasketRepositories _basketRepositories;
         private readonly DiscountGrpcService _discountService;
-        public BasketController(IBasketRepositories basketRepositories, DiscountGrpcService discountService)
+        private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
+        public BasketController(IBasketRepositories basketRepositories, DiscountGrpcService discountService, IMapper mapper, IPublishEndpoint publishEndpoint)
         {
             _basketRepositories = basketRepositories;
             _discountService = discountService;
+            _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         #endregion
@@ -61,6 +69,33 @@ namespace Basket.Api.Controllers
         }
         #endregion
 
+        #region Checkout
+        [HttpPost("[action]")]
+        [ProducesResponseType((int) HttpStatusCode.Accepted)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Checkout([FromBody] BasketCheckout basketCheckout)
+        {
+            // get existing basket
 
+
+            var basket = await _basketRepositories.GetUserBasket(basketCheckout.UserName);
+            if (basket == null)
+                return BadRequest();
+
+            var eventMessage = _mapper.Map<BasketCheckoutEvent>(basketCheckout);
+            eventMessage.TotalPrice =Convert.ToInt32(basket.TotalPrice);
+
+
+            await _publishEndpoint.Publish(eventMessage);
+
+
+
+            await _basketRepositories.DeleteBasket(basketCheckout.UserName);
+
+
+            return Accepted();
+        }
+
+        #endregion
     }
 }

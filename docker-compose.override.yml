@@ -105,4 +105,20 @@ services:
       - "1019:80"
     depends_on:
       - discountdb
+   
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    ports:
+     -  "5672:5672"
+     -  "15672:15672"
+
+  ordering.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:OrderingConnectionString=Data Source=orderdb;Initial Catalog=orderdb;User ID=sa;Password=Aa12345678"
+    depends_on:
+      - orderdb
+    ports:
+      - "1022:80"
 
